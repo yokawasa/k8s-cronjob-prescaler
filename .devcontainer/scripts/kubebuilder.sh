@@ -12,7 +12,8 @@ curl -o /tmp/kubebuilder -sL https://github.com/kubernetes-sigs/kubebuilder/rele
 # move to a long-term location and put it on your path
 # (you'll need to set the KUBEBUILDER_ASSETS env var if you put it somewhere else)
 chmod +x /tmp/kubebuilder
-mv /tmp/kubebuilder /usr/local/kubebuilder
+mkdir -p /usr/local/kubebuilder/bin
+mv /tmp/kubebuilder /usr/local/kubebuilder/bin
 export PATH=$PATH:/usr/local/kubebuilder/bin
 
 # Clear down pkg file
