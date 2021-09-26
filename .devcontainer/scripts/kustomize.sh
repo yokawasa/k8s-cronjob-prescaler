@@ -3,9 +3,8 @@ set -e
 set -x
 
 # download kustomize
-curl -o /tmp/kustomize -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64"
-
-cp /tmp/kustomize /usr/local/kubebuilder/bin/ 
+curl -o /tmp/kustomize.tar.gz -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv3.8.7/kustomize_v3.8.7_linux_amd64.tar.gz"
+tar zxvf /tmp/kustomize.tar.gz -C /usr/local/kubebuilder/bin/ 
 
 # set permission
 chmod a+x /usr/local/kubebuilder/bin/kustomize
