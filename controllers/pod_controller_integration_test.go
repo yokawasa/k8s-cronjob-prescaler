@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -38,7 +37,7 @@ var _ = Describe("LONG TEST: Pod Controller metrics", func() {
 		// construct a prescaled cron in code + post to K8s
 		toCreateFull := generatePSCSpec()
 		toCreate := &toCreateFull
-		toCreate.Spec.CronJob.Spec.Schedule = fmt.Sprintf("*/1 * * * *")
+		toCreate.Spec.CronJob.Spec.Schedule = "*/1 * * * *"
 		toCreate.Spec.WarmUpTimeMins = 0
 
 		Expect(k8sClient.Create(ctx, toCreate)).To(Succeed(), "Creating prescaled cron primer failed and it shouldn't have")

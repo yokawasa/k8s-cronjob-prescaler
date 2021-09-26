@@ -92,11 +92,11 @@ func runTest(minsApart int, warmUpMins int, jobName string) (passed bool, errore
 
 	// if we're within the 'warmup time' when we post this, the actual cron won't get triggered until the next iteration.
 	if fetchedAutogenCron.GetCreationTimestamp().Time.After(next.Add(time.Duration(-toCreate.Spec.WarmUpTimeMins) * time.Minute)) {
-		fmt.Println(fmt.Sprintf("\nWithin warmup zone, will wait for next iteration."))
+		fmt.Printf("%s\n", "Within warmup zone, will wait for next iteration.")
 		next = next.Add(time.Duration(minsApart) * time.Minute)
 	}
 
-	fmt.Println(fmt.Sprintf("\nWorkload container should start at: %v", next.Format(timeFormat)))
+	fmt.Printf("Workload container should start at: %v\n", next.Format(timeFormat))
 	hasSuspended := false
 
 	// before workload container should start - either the cluster is scaling or the init container running here
@@ -107,13 +107,13 @@ func runTest(minsApart int, warmUpMins int, jobName string) (passed bool, errore
 
 			if len(jobPod.Status.InitContainerStatuses) > 0 {
 				if jobPod.Status.InitContainerStatuses[0].State.Waiting != nil {
-					fmt.Println(fmt.Sprintf("Time: %v :: Pod exists, phase --> Init container starting", time.Now().Format(timeFormat)))
+					fmt.Printf("Time: %v :: Pod exists, phase --> Init container starting\n", time.Now().Format(timeFormat))
 				}
 				if jobPod.Status.InitContainerStatuses[0].State.Running != nil {
-					fmt.Println(fmt.Sprintf("Time: %v :: Pod exists, phase --> Init container running", time.Now().Format(timeFormat)))
+					fmt.Printf("Time: %v :: Pod exists, phase --> Init container running\n", time.Now().Format(timeFormat))
 				}
 			} else {
-				fmt.Println(fmt.Sprintf("Time: %v :: Pod exists, phase --> %v", time.Now().Format(timeFormat), jobPod.Status.Phase))
+				fmt.Printf("Time: %v :: Pod exists, phase --> %v\n", time.Now().Format(timeFormat), jobPod.Status.Phase)
 			}
 
 			// suspend the cron to prevent clogging up the cluster with pods we don't care about
@@ -138,7 +138,7 @@ func runTest(minsApart int, warmUpMins int, jobName string) (passed bool, errore
 
 		} else {
 			// no pod there - not supposed to have started yet, or cluster is scaling
-			fmt.Println(fmt.Sprintf("Time: %v :: No pod --> waiting", time.Now().Format(timeFormat)))
+			fmt.Printf("Time: %v :: No pod --> waiting\n", time.Now().Format(timeFormat))
 		}
 
 		time.Sleep(time.Second * 5)
@@ -146,7 +146,7 @@ func runTest(minsApart int, warmUpMins int, jobName string) (passed bool, errore
 
 	// let the pod get scheduled
 	time.Sleep(time.Second * 30)
-	fmt.Println(fmt.Sprintf("\nTime: %v :: Cron iteration passed - job should now be running. Checking status ...", time.Now().Format(timeFormat)))
+	fmt.Printf("Time: %v :: Cron iteration passed - job should now be running. Checking status ...\n", time.Now().Format(timeFormat))
 
 	// get the pod to check what's happening
 	jobPod, err := getPod(ctx, autoGenCronName)
@@ -154,7 +154,7 @@ func runTest(minsApart int, warmUpMins int, jobName string) (passed bool, errore
 		return false, err
 	}
 
-	fmt.Println(fmt.Sprintf("Got job: %v :: Phase --> Workload container %v", jobPod.Name, jobPod.Status.Phase))
+	fmt.Printf("Got job: %v :: Phase --> Workload container %v\n", jobPod.Name, jobPod.Status.Phase)
 
 	// nicer check for the phase / status here
 	if len(jobPod.Status.ContainerStatuses) == 0 || len(jobPod.Status.InitContainerStatuses) == 0 {
@@ -178,9 +178,9 @@ func runTest(minsApart int, warmUpMins int, jobName string) (passed bool, errore
 		return false, nil
 	}
 
-	fmt.Println(fmt.Sprintf("\n\nWorkload started at: %v", jobPod.Status.ContainerStatuses[0].State.Running.StartedAt))
-	fmt.Println(fmt.Sprintf("Init container completed at: %v", jobPod.Status.InitContainerStatuses[0].State.Terminated.FinishedAt))
-	fmt.Println(fmt.Sprintf("Workload started %v seconds after schedule\n\n", jobPod.Status.ContainerStatuses[0].State.Running.StartedAt.Sub(next).Seconds()))
+	fmt.Printf("\n\nWorkload started at: %v\n", jobPod.Status.ContainerStatuses[0].State.Running.StartedAt)
+	fmt.Printf("Init container completed at: %v\n", jobPod.Status.InitContainerStatuses[0].State.Terminated.FinishedAt)
+	fmt.Printf("Workload started %v seconds after schedule\n\n", jobPod.Status.ContainerStatuses[0].State.Running.StartedAt.Sub(next).Seconds())
 
 	return true, nil
 }
