@@ -25,7 +25,7 @@
     check-blank = true
 
 [linters]
-  enable = ["vet", "golint", "gofmt", "deadcode", "varcheck", "structcheck", "misspell", "errcheck", "gosimple", "govet", "ineffassign"]
+  enable = ["vet", "gofmt", "deadcode", "varcheck", "structcheck", "misspell", "errcheck", "gosimple", "govet", "ineffassign"]
 
 [issues]
   exclude-use-default = false

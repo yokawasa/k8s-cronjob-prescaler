@@ -5,9 +5,7 @@
 [![CI](https://github.com/microsoft/k8s-cronjob-prescaler/workflows/CI/badge.svg)](https://github.com/microsoft/k8s-cronjob-prescaler/actions?query=workflow%3ACI) 
 [![Weekly CI](https://github.com/microsoft/k8s-cronjob-prescaler/workflows/Weekly%20CI/badge.svg)](https://github.com/microsoft/k8s-cronjob-prescaler/actions?query=workflow%3A%22Weekly+CI%22)
 
-Please be aware that this code base has been marked as ARCHIVED amd is not actively maintained.
-
-Prior to archving, the code in this project was tested against a matrix of Kubernetes builds for each pull request (see "CI" build for details). The code was also built against the latest version of Kubernetes each week (see "Weekly CI" build for details).
+This is a fork project of [microsoft/k8s-cronjob-prescaler](https://github.com/microsoft/k8s-cronjob-prescaler)
 
 ## Introduction
 
