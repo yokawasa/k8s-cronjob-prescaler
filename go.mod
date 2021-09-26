@@ -1,6 +1,6 @@
 module cronprimer.local
 
-go 1.12
+go 1.13
 
 require (
 	github.com/ReneKroon/ttlcache v1.6.0
