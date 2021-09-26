@@ -4,6 +4,8 @@
 *.dll
 *.so
 *.dylib
+bin
+testbin/*
 
 # Test binary, build with `go test -c`
 *.test
@@ -17,7 +19,7 @@ TEST-*.xml
 
 # Debug information
 __debug_bin
-bin/manager
+
 # Ignore changes to this file but keep it commited in current form
 config/manager/kustomization.yaml
 controllers.coverprofile*
