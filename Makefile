@@ -51,7 +51,7 @@ endif
 
 kind-load-img: docker-build
 	@echo "Loading image into kind"
-	kind load docker-image ${IMG} --name ${KIND_CLUSTER_NAME} --loglevel "trace" 
+	kind load docker-image ${IMG} --name ${KIND_CLUSTER_NAME} -v
 
 # Run integration tests in KIND
 kind-tests: 
@@ -109,7 +109,7 @@ docker-push-initcontainer:
 
 kind-load-initcontainer: docker-build-initcontainer
 	@echo "Loading initcontainer image into kind"	
-	kind load docker-image ${INIT_IMG} --name ${KIND_CLUSTER_NAME} --loglevel "trace" 
+	kind load docker-image ${INIT_IMG} --name ${KIND_CLUSTER_NAME} -v
 
 # UTILITY
 # Generate manifests e.g. CRD, RBAC etc.
