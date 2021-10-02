@@ -33,7 +33,7 @@ else
 	@echo "Helm installation of the prometheus-operator already exists with name ${PROMETHEUS_INSTANCE_NAME}... skipping"
 endif
 
-kustomize-deployment:
+kustomize-deployment: kustomize
 	@echo "Kustomizing k8s resource files"
 	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
@@ -78,11 +78,11 @@ run: generate checks manifests
 	go run ./main.go
 
 # Install CRDs into a cluster
-install-crds: manifests
+install-crds: manifests kustomize
 	$(KUSTOMIZE) build config/crd | kubectl apply -f -
 
 # Uninstall CRDs from a cluster
-uninstall-crds: manifests
+uninstall-crds: manifests kustomize
 	$(KUSTOMIZE) build config/crd | kubectl delete -f -
 
 # SAMPLE YAMLs
