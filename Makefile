@@ -35,7 +35,7 @@ endif
 
 kustomize-deployment: kustomize
 	@echo "Kustomizing k8s resource files"
-	#sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
+	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
 	@echo "Applying kustomizations"
