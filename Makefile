@@ -42,7 +42,7 @@ kustomize-deployment:
 	$(KUSTOMIZE) build config/default | kubectl apply --validate=false -f -
 
 kind-start:
-ifeq (1, $(shell kind get clusters | grep ${KIND_CLUSTER_NAME} | wc -l))
+ifeq (1, $(shell kind get clusters | grep ${KIND_CLUSTER_NAME} | wc -l | tr -d ' '))
 	@echo "Cluster already exists" 
 else
 	@echo "Creating Cluster"	
