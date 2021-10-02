@@ -1,7 +1,7 @@
 # Image URL to use all building/pushing image targets
 timestamp := $(shell /bin/date "+%Y%m%d-%H%M%S")
-IMG ?= docker.io/controller:$(timestamp)
-INIT_IMG ?= docker.io/initcontainer:1
+IMG ?= controller:$(timestamp)
+INIT_IMG ?= initcontainer:1
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 KIND_CLUSTER_NAME ?= "psccontroller"
@@ -35,7 +35,7 @@ endif
 
 kustomize-deployment: kustomize
 	@echo "Kustomizing k8s resource files"
-	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
+	#sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
 	@echo "Applying kustomizations"
