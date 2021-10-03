@@ -4,13 +4,11 @@ on:
   # manual trigger
   workflow_dispatch:
   # push trigger
-  push:
-    branches: 
-      - master
   # pull request trigger
   pull_request:
     branches: 
       - master
+    types: [opened, synchronize, closed]
 
 jobs:
   build:
