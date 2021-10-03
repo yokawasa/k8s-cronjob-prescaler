@@ -4,6 +4,7 @@
 
 [![CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/main.yml/badge.svg)](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/main.yml)
 [![Weekly CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/weekly.yml/badge.svg)](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/weekly.yml)
+[![Release CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/release.yml/badge.svg)](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/release.yml)
 
 This is a fork of [microsoft/k8s-cronjob-prescaler](https://github.com/microsoft/k8s-cronjob-prescaler)
 
