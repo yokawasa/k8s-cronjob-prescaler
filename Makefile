@@ -1,9 +1,11 @@
 # Image URL to use all building/pushing image targets
-VERSION ?= $(shell /bin/date "+%Y%m%d-%H%M%S")
-# IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler:$(VERSION)
-IMG ?= k8s-cronjob-prescaler:$(VERSION)
+IMAGE_TAG := $(shell /bin/date "+%Y%m%d-%H%M%S")
+# IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler:$(IMAGE_TAG)
+IMG ?= k8s-cronjob-prescaler:${IMAGE_TAG}
 # IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler-initcontainer:1
 INIT_IMG ?= k8s-cronjob-prescaler-initcontainer:1
+# release version
+VERSION ?= ${IMAGE_TAG}
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
@@ -40,7 +42,7 @@ endif
 
 kustomize-deployment: kustomize kubectl
 	@echo "Kustomizing k8s resource files"
-	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
+	gsed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
 	@echo "Applying kustomizations"
@@ -48,7 +50,7 @@ kustomize-deployment: kustomize kubectl
 
 kustomize-release: kustomize kubectl
 	@echo "Kustomizing k8s resource files"
-	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
+	gsed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
 	@echo "Generating release yaml"
