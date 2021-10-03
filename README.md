@@ -2,8 +2,8 @@
 
 ## Project Status & Disclaimer
 
-[![CI](https://github.com/microsoft/k8s-cronjob-prescaler/workflows/CI/badge.svg)](https://github.com/microsoft/k8s-cronjob-prescaler/actions?query=workflow%3ACI) 
-[![Weekly CI](https://github.com/microsoft/k8s-cronjob-prescaler/workflows/Weekly%20CI/badge.svg)](https://github.com/microsoft/k8s-cronjob-prescaler/actions?query=workflow%3A%22Weekly+CI%22)
+[![CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/main.yml/badge.svg)](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/main.yml)
+[![Weekly CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/weekly.yml/badge.svg)](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/weekly.yml)
 
 This is a fork project of [microsoft/k8s-cronjob-prescaler](https://github.com/microsoft/k8s-cronjob-prescaler)
 

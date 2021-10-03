@@ -2,6 +2,11 @@
 set -e
 set -x
 
-curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.5.1/kind-linux-amd64
+os=$(go env GOOS)
+arch=$(go env GOARCH)
+kind_version="v0.11.1"
+# ref: https://kind.sigs.k8s.io/docs/user/quick-start/#installation
+
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/${kind_version}/kind-${os}-${arch}
 chmod +x ./kind
 mv ./kind /usr/local/bin/kind

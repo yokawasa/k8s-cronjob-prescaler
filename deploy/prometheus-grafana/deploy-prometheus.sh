@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 cd "$(dirname "$0")"
 
 #
@@ -70,7 +69,9 @@ else
     echo "Installing Prometheus operator..."
     # prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false means all serviceMonitors are discover not just 
     # those deployed by the helm chart itself
-    helm install $PROMETHEUS_INSTANCE_NAME stable/prometheus-operator --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo update
+    helm install $PROMETHEUS_INSTANCE_NAME prometheus-community/kube-prometheus-stack
 fi
 echo
 
