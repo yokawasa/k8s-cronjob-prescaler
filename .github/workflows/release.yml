@@ -30,9 +30,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Go modules sync
-        run: go mod tidy
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
