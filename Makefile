@@ -127,9 +127,10 @@ fmt:
 	find . -name '*.go' | grep -v vendor | xargs gofmt -s -w
 	
 # Run linting
+GOLANGCI_LINT = $(shell go env GOPATH)/bin/golangci-lint
 checks:
 	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sed 's/tar -/tar --no-same-owner -/g' | sh -s -- -b $(shell go env GOPATH)/bin
-	GO111MODULE=on golangci-lint run
+	GO111MODULE=on $(GOLANGCI_LINT) run
 
 # Generate code
 generate: controller-gen
