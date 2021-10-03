@@ -1,9 +1,11 @@
 # Image URL to use all building/pushing image targets
-VERSION ?= $(shell /bin/date "+%Y%m%d-%H%M%S")
-# IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler:$(VERSION)
-IMG ?= k8s-cronjob-prescaler:$(VERSION)
+IMAGE_TAG := $(shell /bin/date "+%Y%m%d-%H%M%S")
+# IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler:$(IMAGE_TAG)
+IMG ?= k8s-cronjob-prescaler:${IMAGE_TAG}
 # IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler-initcontainer:1
 INIT_IMG ?= k8s-cronjob-prescaler-initcontainer:1
+# release version
+VERSION ?= ${IMAGE_TAG}
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
