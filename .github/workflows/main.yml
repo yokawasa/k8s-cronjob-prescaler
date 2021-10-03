@@ -1,17 +1,19 @@
 name: CI
 
 on:
+  # manual trigger
+  workflow_dispatch:
+  # push trigger
   push:
     branches: 
       - master
+  # pull request trigger
   pull_request:
     branches: 
       - master
-  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -19,17 +21,18 @@ jobs:
         kubernetes_version: [v1.18.19, v1.19.11, v1.21.1, v1.22.1]
 
     steps:
-    - uses: actions/checkout@v2
-      
-    - uses: actions/cache@v1
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-      
-    - name: Run Continuous Integration
-      run: sh ./ci.sh 
-      env:
-        K8S_NODE_IMAGE: ${{ matrix.kubernetes_version }}
+      - name: Check out code
+        uses: actions/checkout@v2
 
+      - name: Go modules cache
+        uses: actions/cache@v2.1.6
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      
+      - name: Run Continuous Integration
+        run: sh ./ci.sh 
+        env:
+          K8S_NODE_IMAGE: ${{ matrix.kubernetes_version }}
