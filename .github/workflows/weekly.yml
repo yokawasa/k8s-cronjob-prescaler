@@ -1,22 +1,26 @@
 name: Weekly CI
 
 on:
+  # manual trigger
+  workflow_dispatch:
+  # schedule trigger
   schedule:
     - cron: '0 0 * * 0' # runs every Sunday at midnight
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out code
+        uses: actions/checkout@v2
 
       - name: Install jq
         run: |
           sudo apt-get install jq
 
-      - uses: actions/cache@v1
+      - name: Go modules cache
+        uses: actions/cache@v2.1.6
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}

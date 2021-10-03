@@ -1,7 +1,10 @@
 # Image URL to use all building/pushing image targets
-timestamp := $(shell /bin/date "+%Y%m%d-%H%M%S")
-IMG ?= controller:$(timestamp)
-INIT_IMG ?= initcontainer:1
+VERSION := $(shell /bin/date "+%Y%m%d-%H%M%S")
+# IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler:$(VERSION)
+IMG ?= k8s-cronjob-prescaler:$(VERSION)
+# IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler-initcontainer:1
+INIT_IMG ?= k8s-cronjob-prescaler-initcontainer:1
+
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 KIND_CLUSTER_NAME ?= "psccontroller"
@@ -24,7 +27,7 @@ build-run-ci: manager unit-tests deploy-kind kind-tests kind-long-tests
 
 # DEPLOYING:
 # - Kind
-deploy-kind: kind-start kind-load-img kind-load-initcontainer deploy-cluster
+deploy-kind: kind-start kind-load kind-load-initcontainer deploy-cluster
 # - Configured Kubernetes cluster in ~/.kube/config (could be KIND too)
 deploy-cluster: manifests install-crds install-prometheus kustomize-deployment
 
@@ -43,6 +46,14 @@ kustomize-deployment: kustomize kubectl
 	@echo "Applying kustomizations"
 	$(KUSTOMIZE) build config/default | $(KUBECTL) apply --validate=false -f -
 
+kustomize-release: kustomize kubectl
+	@echo "Kustomizing k8s resource files"
+	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
+	@echo "Generating release yaml"
+	$(KUSTOMIZE) build config/default > k8s-cronjob-prescaler-$(VERSION).yaml
+
 kind-start:
 ifeq (1, $(shell kind get clusters | grep ${KIND_CLUSTER_NAME} | wc -l | tr -d ' '))
 	@echo "Cluster already exists" 
@@ -51,9 +62,13 @@ else
 	kind create cluster --name ${KIND_CLUSTER_NAME} --image=kindest/node:${K8S_NODE_IMAGE}
 endif
 
-kind-load-img: docker-build
+kind-load: docker-build
 	@echo "Loading image into kind"
 	kind load docker-image ${IMG} --name ${KIND_CLUSTER_NAME} -v 1
+
+kind-load-initcontainer: docker-build-initcontainer
+	@echo "Loading initcontainer image into kind"	
+	kind load docker-image ${INIT_IMG} --name ${KIND_CLUSTER_NAME} -v 1
 
 # Run integration tests in KIND
 kind-tests: 
@@ -65,11 +80,11 @@ kind-long-tests:
 	-kubetl delete prescaledcronjobs --all -n psc-system
 
 # Run unit tests and output in JUnit format
-unit-tests: generate checks manifests
+unit-tests: generate checks manifests go-junit-report
 	go test controllers/utilities_test.go controllers/utilities.go -v -cover 2>&1 | tee TEST-utilities.txt
 	go test controllers/structhash_test.go controllers/structhash.go -v -cover 2>&1 | tee TEST-structhash.txt
-	cat TEST-utilities.txt | go-junit-report 2>&1 > TEST-utilities.xml
-	cat TEST-structhash.txt | go-junit-report 2>&1 > TEST-structhash.xml
+	cat TEST-utilities.txt | $(GO_JUNIT_REPORT) 2>&1 > TEST-utilities.xml
+	cat TEST-structhash.txt | $(GO_JUNIT_REPORT) 2>&1 > TEST-structhash.xml
 
 # Build manager binary
 manager: generate checks
@@ -101,17 +116,6 @@ recreate-sample-psccron: kubectl
 recreate-sample-initcron: kubectl
 	-kubectl delete cronjob sampleinitcron
 	$(KUBECTL) apply -f ./config/samples/init_cron_sample.yaml
-	
-# INIT CONTAINER
-docker-build-initcontainer:
-	docker build -t ${INIT_IMG} ./initcontainer
-
-docker-push-initcontainer:
-	docker push ${INIT_IMG}
-
-kind-load-initcontainer: docker-build-initcontainer
-	@echo "Loading initcontainer image into kind"	
-	kind load docker-image ${INIT_IMG} --name ${KIND_CLUSTER_NAME} -v 1
 
 # UTILITY
 # Generate manifests e.g. CRD, RBAC etc.
@@ -123,8 +127,8 @@ fmt:
 	find . -name '*.go' | grep -v vendor | xargs gofmt -s -w
 	
 # Run linting
-checks:
-	GO111MODULE=on golangci-lint run
+checks: golangci-lint
+	GO111MODULE=on $(GOLANGCI_LINT) run
 
 # Generate code
 generate: controller-gen
@@ -135,8 +139,16 @@ docker-build: unit-tests
 	docker build . -t ${IMG}
 
 # Push the docker image
-docker-push:
+docker-push: docker-build
 	docker push ${IMG}
+
+# Build the docker image for initcontainer
+docker-build-initcontainer:
+	docker build -t ${INIT_IMG} ./initcontainer
+
+# Push the docker image for initcontainer
+docker-push-initcontainer: docker-build-initcontainer
+	docker push ${INIT_IMG}
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Download controller-gen locally if necessary.
@@ -149,6 +161,14 @@ kustomize: ## Download kustomize locally if necessary.
 KUBECTL = $(shell pwd)/bin/kubectl
 kubectl: ## Download kubectl locally if necessary.
 	$(call curl-get-tool,$(KUBECTL),https://dl.k8s.io/release/v1.20.2/bin/${OS}/amd64/kubectl)
+
+GOLANGCI_LINT = $(shell go env GOPATH)/bin/golangci-lint
+golangci-lint: ## Download golangci-lint locally
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sed 's/tar -/tar --no-same-owner -/g' | sh -s -- -b $(shell go env GOPATH)/bin
+
+GO_JUNIT_REPORT = $(shell pwd)/bin/go-junit-report
+go-junit-report: ## Download go-junit-report locally
+	$(call go-get-tool,$(GO_JUNIT_REPORT),github.com/jstemmer/go-junit-report@v0.9.1)
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
