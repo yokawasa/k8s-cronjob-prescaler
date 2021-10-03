@@ -8,10 +8,6 @@ on:
     # Sequence of patterns matched against refs/tags
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
-  # TEST
-  pull_request:
-    branches: 
-      - master
 
 jobs:
   build:
@@ -39,8 +35,7 @@ jobs:
 
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::v0.0.1
-        #run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
 
       - name: Publish images on GitHub Container Registry
         run: |
