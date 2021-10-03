@@ -1,5 +1,5 @@
 # Image URL to use all building/pushing image targets
-VERSION := $(shell /bin/date "+%Y%m%d-%H%M%S")
+VERSION ?= $(shell /bin/date "+%Y%m%d-%H%M%S")
 # IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler:$(VERSION)
 IMG ?= k8s-cronjob-prescaler:$(VERSION)
 # IMG ?= ghcr.io/yokawasa/k8s-cronjob-prescaler-initcontainer:1
