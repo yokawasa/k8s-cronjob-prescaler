@@ -42,7 +42,7 @@ endif
 
 kustomize-deployment: kustomize kubectl
 	@echo "Kustomizing k8s resource files"
-	gsed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
+	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
 	@echo "Applying kustomizations"
@@ -50,7 +50,7 @@ kustomize-deployment: kustomize kubectl
 
 kustomize-release: kustomize kubectl
 	@echo "Kustomizing k8s resource files"
-	gsed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
+	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
 	@echo "Generating release yaml"
