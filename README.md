@@ -84,6 +84,16 @@ To deploy to a local K8s/Kind instance:
   kubectl get all -n psc-system
 ```
 
+### Releasing
+
+```bash
+RELEASE_VERSION=v1.0.0
+git tag -a ${RELEASE_VERSION} -m "Version k8s-cronjob-prescaler-${RELEASE_VERSION}"
+git push --tags
+```
+
+After release tag was pushed, [release CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/release.yml) will automatically make release for the RELEASE_VESION
+
 ### Creating your first PreScaledCronJob
 
 A sample `yaml` is provided for you in the config folder.
