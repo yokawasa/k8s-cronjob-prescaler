@@ -128,6 +128,7 @@ fmt:
 	
 # Run linting
 checks:
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sed 's/tar -/tar --no-same-owner -/g' | sh -s -- -b $(shell go env GOPATH)/bin
 	GO111MODULE=on golangci-lint run
 
 # Generate code
