@@ -9,6 +9,8 @@ K8S_NODE_IMAGE ?= v1.21.1
 PROMETHEUS_INSTANCE_NAME ?= prometheus-operator
 CONFIG_MAP_NAME ?= initcontainer-configmap
 
+OS := $(shell uname | tr '[A-Z]' '[a-z]')
+
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -33,13 +35,13 @@ else
 	@echo "Helm installation of the prometheus-operator already exists with name ${PROMETHEUS_INSTANCE_NAME}... skipping"
 endif
 
-kustomize-deployment: kustomize
+kustomize-deployment: kustomize kubectl
 	@echo "Kustomizing k8s resource files"
 	sed -i "/configMapGenerator/,/${CONFIG_MAP_NAME}/d" config/manager/kustomization.yaml
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	cd config/manager && $(KUSTOMIZE) edit add configmap ${CONFIG_MAP_NAME} --from-literal=initContainerImage=${INIT_IMG}
 	@echo "Applying kustomizations"
-	$(KUSTOMIZE) build config/default | kubectl apply --validate=false -f -
+	$(KUSTOMIZE) build config/default | $(KUBECTL) apply --validate=false -f -
 
 kind-start:
 ifeq (1, $(shell kind get clusters | grep ${KIND_CLUSTER_NAME} | wc -l | tr -d ' '))
@@ -78,27 +80,27 @@ run: generate checks manifests
 	go run ./main.go
 
 # Install CRDs into a cluster
-install-crds: manifests kustomize
-	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+install-crds: manifests kustomize kubectl
+	$(KUSTOMIZE) build config/crd | $(KUBECTL) apply -f -
 
 # Uninstall CRDs from a cluster
-uninstall-crds: manifests kustomize
-	$(KUSTOMIZE) build config/crd | kubectl delete -f -
+uninstall-crds: manifests kustomize kubectl
+	$(KUSTOMIZE) build config/crd | $(KUBECTL) delete -f -
 
 # SAMPLE YAMLs
 # - Regular cronjob
-recreate-sample-cron:
+recreate-sample-cron: kubectl
 	-kubectl delete cronjob samplecron
-	kubectl apply -f ./config/samples/cron_sample.yaml
+	$(KUBECTL) apply -f ./config/samples/cron_sample.yaml
 # - PrescaledCronJob
-recreate-sample-psccron:
+recreate-sample-psccron: kubectl
 	-kubectl delete prescaledcronjob prescaledcronjob-sample -n psc-system
 	-kubectl delete cronjob autogen-prescaledcronjob-sample -n psc-system
-	kubectl apply -f ./config/samples/psc_v1alpha1_prescaledcronjob.yaml
+	$(KUBECTL) apply -f ./config/samples/psc_v1alpha1_prescaledcronjob.yaml
 # - Regular cronjob with init container
-recreate-sample-initcron:
+recreate-sample-initcron: kubectl
 	-kubectl delete cronjob sampleinitcron
-	kubectl apply -f ./config/samples/init_cron_sample.yaml
+	$(KUBECTL) apply -f ./config/samples/init_cron_sample.yaml
 	
 # INIT CONTAINER
 docker-build-initcontainer:
@@ -144,6 +146,10 @@ KUSTOMIZE = $(shell pwd)/bin/kustomize
 kustomize: ## Download kustomize locally if necessary.
 	$(call go-get-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v3@v3.8.7)
 
+KUBECTL = $(shell pwd)/bin/kubectl
+kubectl: ## Download kubectl locally if necessary.
+	$(call curl-get-tool,$(KUBECTL),https://dl.k8s.io/release/v1.20.2/bin/${OS}/amd64/kubectl)
+
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 define go-get-tool
@@ -155,5 +161,15 @@ go mod init tmp ;\
 echo "Downloading $(2)" ;\
 GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
 rm -rf $$TMP_DIR ;\
+}
+endef
+
+# curl-get-tool will 'curl' any package $2 and install it to $1.
+define curl-get-tool
+@[ -f $(1) ] || { \
+set -e ;\
+echo "Downloading $(2)" ;\
+curl -o $(1) -L $(2) ;\
+chmod +x $(1) ;\
 }
 endef
