@@ -80,11 +80,11 @@ kind-long-tests:
 	-kubetl delete prescaledcronjobs --all -n psc-system
 
 # Run unit tests and output in JUnit format
-unit-tests: generate checks manifests
+unit-tests: generate checks manifests go-junit-report
 	go test controllers/utilities_test.go controllers/utilities.go -v -cover 2>&1 | tee TEST-utilities.txt
 	go test controllers/structhash_test.go controllers/structhash.go -v -cover 2>&1 | tee TEST-structhash.txt
-	cat TEST-utilities.txt | go-junit-report 2>&1 > TEST-utilities.xml
-	cat TEST-structhash.txt | go-junit-report 2>&1 > TEST-structhash.xml
+	cat TEST-utilities.txt | $(GO_JUNIT_REPORT) 2>&1 > TEST-utilities.xml
+	cat TEST-structhash.txt | $(GO_JUNIT_REPORT) 2>&1 > TEST-structhash.xml
 
 # Build manager binary
 manager: generate checks
@@ -127,9 +127,7 @@ fmt:
 	find . -name '*.go' | grep -v vendor | xargs gofmt -s -w
 	
 # Run linting
-GOLANGCI_LINT = $(shell go env GOPATH)/bin/golangci-lint
-checks:
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sed 's/tar -/tar --no-same-owner -/g' | sh -s -- -b $(shell go env GOPATH)/bin
+checks: golangci-lint
 	GO111MODULE=on $(GOLANGCI_LINT) run
 
 # Generate code
@@ -163,6 +161,14 @@ kustomize: ## Download kustomize locally if necessary.
 KUBECTL = $(shell pwd)/bin/kubectl
 kubectl: ## Download kubectl locally if necessary.
 	$(call curl-get-tool,$(KUBECTL),https://dl.k8s.io/release/v1.20.2/bin/${OS}/amd64/kubectl)
+
+GOLANGCI_LINT = $(shell go env GOPATH)/bin/golangci-lint
+golangci-lint: ## Download golangci-lint locally
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sed 's/tar -/tar --no-same-owner -/g' | sh -s -- -b $(shell go env GOPATH)/bin
+
+GO_JUNIT_REPORT = $(shell pwd)/bin/go-junit-report
+go-junit-report: ## Download go-junit-report locally
+	$(call go-get-tool,$(GO_JUNIT_REPORT),github.com/jstemmer/go-junit-report@v0.9.1)
 
 # go-get-tool will 'go get' any package $2 and install it to $1.
 PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
