@@ -5,7 +5,9 @@
 [![CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/main.yml/badge.svg)](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/main.yml)
 [![Weekly CI](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/weekly.yml/badge.svg)](https://github.com/yokawasa/k8s-cronjob-prescaler/actions/workflows/weekly.yml)
 
-This is a fork project of [microsoft/k8s-cronjob-prescaler](https://github.com/microsoft/k8s-cronjob-prescaler)
+This is a fork of [microsoft/k8s-cronjob-prescaler](https://github.com/microsoft/k8s-cronjob-prescaler)
+
+Supported k8s versions: 1.18, 1.19, 1.20, 1.21, 1.22
 
 ## Introduction
 
